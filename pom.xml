@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-License-Identifier: Apache-2.0
+SPDX-FileCopyrightText: 2026 The Linux Foundation
+
+Aggregator POM.
+
+Deliberately declares no compiler property and no parent: the Java
+version lives in the parent module instead. This mirrors the layout of
+real Linux Foundation projects (for example ONAP cps) and exercises the
+reactor/parent resolution that metadata tooling has to perform when it
+runs at the repository root.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.lfreleng.test</groupId>
+  <artifactId>test-maven-project</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Sample multi-module Maven project used for testing actions</description>
+
+  <modules>
+    <module>parent</module>
+    <module>core</module>
+    <module>app</module>
+  </modules>
+
+</project>
