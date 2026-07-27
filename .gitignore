@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 The Linux Foundation
+
+# Maven build output
+target/
+*.class
+*.jar
+*.war
+
+# Sonar scanner working directory
+.scannerwork/
+.sonar/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# OS
+.DS_Store

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-License-Identifier: Apache-2.0
+SPDX-FileCopyrightText: 2026 The Linux Foundation
+
+Parent POM holding the toolchain, dependency management and build
+plugin configuration inherited by the code modules.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.lfreleng.test</groupId>
+  <artifactId>test-maven-parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Parent POM for the sample Maven project</description>
+
+  <properties>
+    <!-- Declared as maven.compiler.release (not source/target), the form
+         modern Java projects use and the one metadata detection has to
+         understand. Release 17 compiles on any JDK 17 or newer. -->
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <junit.version>5.14.4</junit.version>
+    <jacoco.plugin.version>0.8.15</jacoco.plugin.version>
+    <surefire.plugin.version>3.5.6</surefire.plugin.version>
+    <compiler.plugin.version>3.15.0</compiler.plugin.version>
+
+    <!-- Tests named Failing*Test stay out of a normal build. The
+         failing-tests profile clears this exclusion so consumers can
+         exercise test-failure handling (soft-fail inputs, report
+         rendering) against a build that genuinely fails. -->
+    <surefire.excludes>**/Failing*Test.java</surefire.excludes>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${compiler.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${surefire.plugin.version}</version>
+          <configuration>
+            <excludes>
+              <exclude>${surefire.excludes}</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${jacoco.plugin.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <!-- Writes target/site/jacoco/jacoco.xml per module, which
+             SonarQube discovers automatically in Maven analysis mode. -->
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <!-- Activate with -P failing-tests to include the deliberately
+           failing tests and produce a build that fails in the test
+           phase. -->
+      <id>failing-tests</id>
+      <properties>
+        <surefire.excludes>**/NoTestsExcluded.java</surefire.excludes>
+      </properties>
+    </profile>
+  </profiles>
+
+</project>

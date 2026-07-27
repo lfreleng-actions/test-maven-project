@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-License-Identifier: Apache-2.0
+SPDX-FileCopyrightText: 2026 The Linux Foundation
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.lfreleng.test</groupId>
+    <artifactId>test-maven-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../parent/pom.xml</relativePath>
+  </parent>
+
+  <artifactId>test-maven-app</artifactId>
+  <packaging>jar</packaging>
+
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Application module of the sample Maven project</description>
+
+  <dependencies>
+    <!-- Inter-module dependency: the reactor must build core first, so a
+         module-aware build is required (a flat per-module build fails). -->
+    <dependency>
+      <groupId>org.lfreleng.test</groupId>
+      <artifactId>test-maven-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+</project>
