@@ -41,4 +41,12 @@ class GreeterTest {
     void exposesResolvedName() {
         assertEquals("world", new Greeter(null).name());
     }
+
+    @Test
+    @DisplayName("serialises the greeting as JSON")
+    void serialisesAsJson() {
+        assertEquals(
+                "{\"greeting\":\"Hello, Bob!\",\"name\":\"Bob\"}",
+                new Greeter("Bob").toJson());
+    }
 }

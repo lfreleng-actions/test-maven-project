@@ -22,4 +22,23 @@ SPDX-FileCopyrightText: 2026 The Linux Foundation
   <name>${project.groupId}:${project.artifactId}</name>
   <description>Core library module of the sample Maven project</description>
 
+  <dependencies>
+    <!-- Compile-scope third-party dependency, deliberately versionless:
+         the version arrives from the jackson-bom import in the parent.
+         jackson-databind also pulls jackson-core and jackson-annotations
+         transitively, so one declared coordinate resolves to three
+         components. Both properties matter to SBOM fixtures: a generator
+         that reads pom.xml as text sees one component with no version,
+         whereas one driven by Maven's own resolver sees all three with
+         correct versions.
+
+         Compile scope also makes it transitive to the app module, so the
+         aggregate BOM carries a real dependency graph:
+         app -> core -> jackson-databind -> jackson-core. -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+  </dependencies>
+
 </project>

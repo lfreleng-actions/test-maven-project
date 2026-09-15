@@ -29,6 +29,7 @@ plugin configuration inherited by the code modules.
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <junit.version>6.1.3</junit.version>
+    <jackson.version>2.22.2</jackson.version>
     <jacoco.plugin.version>0.8.15</jacoco.plugin.version>
     <surefire.plugin.version>3.6.0</surefire.plugin.version>
     <compiler.plugin.version>3.16.0</compiler.plugin.version>
@@ -46,6 +47,19 @@ plugin configuration inherited by the code modules.
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
         <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Imported BOM supplying the Jackson version. Modules declare
+           jackson-databind with no <version> of their own, so the
+           coordinate only resolves once Maven has processed this
+           import. Static parsers that read pom.xml as text cannot see
+           it and emit the component with an UNKNOWN version, which a
+           vulnerability scanner then cannot match. -->
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
