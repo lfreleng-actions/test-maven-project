@@ -5,6 +5,11 @@
 
 package org.lfreleng.test.core;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
+import java.util.TreeMap;
+
 /**
  * Builds greeting messages.
  *
@@ -14,6 +19,8 @@ package org.lfreleng.test.core;
 public final class Greeter {
 
     private static final String DEFAULT_NAME = "world";
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final String name;
 
@@ -46,5 +53,36 @@ public final class Greeter {
      */
     public String name() {
         return name;
+    }
+
+    /**
+     * Returns the greeting serialised as a JSON document.
+     *
+     * <p>Gives the module a genuine compile-scope use of a third-party
+     * library. SBOM fixtures need a resolved transitive graph to be
+     * worth measuring, and a test-scoped dependency cannot provide one
+     * because it is absent from the shipped artefact.
+     *
+     * <p>Deliberately touches only {@code jackson-databind} types.
+     * {@code writeValueAsString} would throw {@code
+     * JsonProcessingException}, which {@code jackson-core} supplies,
+     * making this API depend on a transitive coordinate the module does
+     * not declare. {@code dependency:analyze} flags that as used but
+     * undeclared, which is the very hygiene problem this fixture exists
+     * to exercise. Building a tree instead keeps {@code jackson-core}
+     * and {@code jackson-annotations} purely transitive, so one
+     * declared coordinate still resolves to three components.
+     *
+     * <p>Keys are emitted in sorted order so the output is stable
+     * across runs.
+     *
+     * @return the greeting as JSON
+     */
+    public String toJson() {
+        final Map<String, String> fields = new TreeMap<>();
+        fields.put("greeting", greet());
+        fields.put("name", name);
+        final JsonNode tree = MAPPER.valueToTree(fields);
+        return tree.toString();
     }
 }
