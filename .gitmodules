@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 The Linux Foundation
+
+# Pinned to this repository's own first commit, which holds a README and
+# nothing else: no build, and no .gitmodules, so a recursive checkout
+# stops here. SubmoduleTest reads that README to prove a checkout
+# populated this directory. See "Submodule" in README.md.
+[submodule "submodule"]
+	path = submodule
+	url = https://github.com/lfreleng-actions/test-maven-project.git

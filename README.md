@@ -22,6 +22,7 @@ pom.xml            aggregator - no parent, no compiler property
 parent/            holds the toolchain, dependency and plugin config
 core/              library module
 app/               depends on core, so the reactor has a build order
+submodule/         git submodule pinned to this repository's first commit
 ```
 
 Two consequences worth knowing:
@@ -98,7 +99,7 @@ Build and test:
 mvn clean verify
 ```
 
-That runs 10 tests across the two code modules and writes, per module:
+That runs 11 tests across the two code modules and writes, per module:
 
 - JUnit XML to `<module>/target/surefire-reports/`
 - JaCoCo coverage XML to `<module>/target/site/jacoco/jacoco.xml`
@@ -119,6 +120,38 @@ mvn clean verify -P failing-tests
 Use this to exercise failure handling: soft-fail inputs, test report
 rendering, and quality gates. The failures are assertion failures in
 `core`, so the reactor stops before `app`.
+
+## Submodule
+
+`submodule/` is a git submodule that pins this repository's own first
+commit, which holds a two-line `README.md` and nothing else. That gives
+checkout tooling a real submodule to fetch, without nesting a second
+build in the reactor. The pinned commit has no `.gitmodules`, so a
+recursive checkout stops one level down.
+
+`core`'s `SubmoduleTest` reads that README and checks its content, so the
+result depends on how a checkout handled the submodule:
+
+| Checkout                         | `SubmoduleTest` |
+| -------------------------------- | --------------- |
+| With submodules                  | Passes          |
+| Without submodules               | Skipped         |
+| Submodule with other content     | Fails           |
+
+The test compares the README's content, not the submodule's commit: git
+already checks out the commit `.gitmodules` pins, so what the test adds
+is proof that a checkout fetched the submodule at all. A commit carrying
+an identical README would pass it.
+
+A plain `git clone`, or `actions/checkout` with its default
+`submodules: false`, leaves the directory empty, so the test skips and
+the build still succeeds. A workflow that tests submodule checkout
+should assert that `SubmoduleTest` **passed**: a skip there means the
+checkout left the submodule out.
+
+The pinned commit is an ancestor of `main`, and this repository permits
+merge commits alone. So it stays reachable, and GitHub serves it
+by SHA to a shallow submodule fetch. Do not rewrite `main`'s history.
 
 ## SonarQube analysis
 
