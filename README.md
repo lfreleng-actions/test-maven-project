@@ -38,7 +38,7 @@ Two consequences worth knowing:
 | ------------------ | ------------------------------------------------------- |
 | Java               | `maven.compiler.release` 17 (builds on JDK 17 or newer) |
 | Tests              | JUnit 6 (`junit-bom` 6.1.3, test scope)                 |
-| Runtime dependency | Jackson (`jackson-bom` 2.22.2, compile scope)           |
+| Runtime dependency | Jackson (`jackson-bom` 2.22.3, compile scope)           |
 | Coverage           | JaCoCo 0.8.15, XML report per module                    |
 
 The parent POM declares the Java version as `maven.compiler.release`
@@ -67,7 +67,7 @@ The declaration exercises two behaviours at once:
   `jackson-annotations` beneath it.
 - **BOM-managed version resolution.** The version materialises when Maven
   processes the imported BOM. That BOM also pins the three artifacts at
-  *different* versions (`jackson-databind` 2.22.2, `jackson-annotations`
+  *different* versions (`jackson-databind` 2.22.3, `jackson-annotations`
   2.22), so a tool that guesses one version for the whole family gets it
   wrong in a visible way.
 
