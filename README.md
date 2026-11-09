@@ -22,6 +22,9 @@ pom.xml            aggregator - no parent, no compiler property
 parent/            holds the toolchain, dependency and plugin config
 core/              library module
 app/               depends on core, so the reactor has a build order
+  Dockerfile       plain-Dockerfile image of app's built jar
+  container-tag.yaml  per-image tag file for that image
+app-fabric8/       fabric8 docker-maven-plugin image, opt-in via -P docker
 submodule/         git submodule pinned to this repository's first commit
 ```
 
@@ -120,6 +123,65 @@ mvn clean verify -P failing-tests
 Use this to exercise failure handling: soft-fail inputs, test report
 rendering, and quality gates. The failures are assertion failures in
 `core`, so the reactor stops before `app`.
+
+## Docker images
+
+Two image patterns let Java and Docker workflows build this fixture end
+to end. They match the two groups a survey of ONAP, O-RAN-SC and
+OpenDaylight Maven repositories found.
+
+**The default build and its outputs do not change.** `mvn verify`
+builds the same modules, in the same order, with the same artefacts,
+SBOM and Sonar analysis as before. Both images are opt-in.
+
+### Plain Dockerfile copying a built jar
+
+Represents a `Dockerfile` that runs `COPY target/*.jar`, used by about
+21 ONAP and 10 O-RAN-SC repositories: a packaged artefact feeds an
+ordinary `docker build`.
+
+`app/Dockerfile` copies `app/target/test-maven-app-*.jar` to
+`/app/app.jar` and nothing else from the build. `app/container-tag.yaml`
+sets its tag, in the form O-RAN-SC projects use.
+
+```console
+mvn package
+docker build -t lfreleng-test/maven-app:1.0.0 app
+docker run --rm lfreleng-test/maven-app:1.0.0
+```
+
+The image holds no dependencies, so it cannot run the application.
+Its default command lists `/app/app.jar` and exits 0, which a
+`test_command` can assert on.
+
+### Image built by the fabric8 docker-maven-plugin
+
+Represents the `io.fabric8:docker-maven-plugin` pattern, used by about
+24 ONAP repositories: the image comes out of the Maven run, with no
+plain jar to hand over.
+
+The `docker` profile in the aggregator `pom.xml` adds one module,
+`app-fabric8`, and nothing else sees it. Building it needs the profile
+and a Docker daemon:
+
+```console
+mvn -P docker package
+docker run --rm lfreleng-test/maven-fixture-app:1.0.0-SNAPSHOT-latest
+```
+
+The plugin assembles the app jar and its runtime dependencies into the
+build context's `maven/` directory and builds
+`app-fabric8/src/main/docker/Dockerfile`. The image runs
+`org.lfreleng.test.app.App` on an explicit class path and prints its
+greeting. It gets two tags, in the shape ONAP's `sdc-docker-base` uses:
+
+- `1.0.0-SNAPSHOT-<yyyyMMdd'T'HHmmss'Z'>`, for example
+  `1.0.0-SNAPSHOT-20261109T133600Z`
+- `1.0.0-SNAPSHOT-latest`
+
+The module binds the plugin's `build` goal alone and leaves
+`docker.push.registry` unset, so nothing pushes from inside Maven. The
+calling workflow owns the push.
 
 ## Submodule
 

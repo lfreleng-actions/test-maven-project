@@ -31,4 +31,17 @@ runs at the repository root.
     <module>app</module>
   </modules>
 
+  <profiles>
+    <profile>
+      <!-- Activate with -P docker to add the fabric8-built image module.
+           Off by default, so the default reactor (modules, artefacts,
+           build order, SBOM and Sonar analysis) never sees it. Building
+           it needs a Docker daemon. -->
+      <id>docker</id>
+      <modules>
+        <module>app-fabric8</module>
+      </modules>
+    </profile>
+  </profiles>
+
 </project>
