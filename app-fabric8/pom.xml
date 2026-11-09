@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-License-Identifier: Apache-2.0
+SPDX-FileCopyrightText: 2026 The Linux Foundation
+
+fabric8 docker-maven-plugin image pattern: the image comes out of the
+Maven run, with no plain jar handed to a separate docker build.
+
+Only the aggregator's docker profile adds this module to the reactor:
+build it with "mvn -P docker package", which needs a Docker daemon.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.lfreleng.test</groupId>
+    <artifactId>test-maven-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../parent/pom.xml</relativePath>
+  </parent>
+
+  <artifactId>test-maven-app-fabric8</artifactId>
+  <packaging>pom</packaging>
+
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Docker image of the app module, built by the fabric8 docker-maven-plugin</description>
+
+  <properties>
+    <!-- The tag timestamp takes the form ONAP's released tags show,
+         for example 1.7.0-20200619T121144Z. Maven reads this format
+         from the model of the project it builds, so it lives here
+         rather than in the aggregator, which is not this module's
+         parent. -->
+    <maven.build.timestamp.format>yyyyMMdd'T'HHmmss'Z'</maven.build.timestamp.format>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.lfreleng.test</groupId>
+      <artifactId>test-maven-app</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <configuration>
+          <images>
+            <image>
+              <!-- The name carries one tag and <tags> the other, so the
+                   image gets exactly these two and no implicit latest.
+                   The shape copies ONAP's sdc-docker-base pom. -->
+              <name>lfreleng-test/maven-fixture-app:${project.version}-latest</name>
+              <build>
+                <contextDir>${project.basedir}/src/main/docker</contextDir>
+                <tags>
+                  <tag>${project.version}-${maven.build.timestamp}</tag>
+                </tags>
+                <!-- Places the app jar and its runtime dependencies in
+                     the build context's maven/ directory. -->
+                <assembly>
+                  <descriptorRef>dependencies</descriptorRef>
+                </assembly>
+              </build>
+            </image>
+          </images>
+        </configuration>
+        <executions>
+          <!-- Only the build goal is bound. The calling lane owns the
+               push, so push stays unbound and docker.push.registry
+               unset: nothing pushes from inside Maven. -->
+          <execution>
+            <id>build-image</id>
+            <phase>package</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

@@ -33,6 +33,7 @@ plugin configuration inherited by the code modules.
     <jacoco.plugin.version>0.8.16</jacoco.plugin.version>
     <surefire.plugin.version>3.6.1</surefire.plugin.version>
     <compiler.plugin.version>3.16.0</compiler.plugin.version>
+    <docker.plugin.version>0.49.0</docker.plugin.version>
 
     <!-- Tests named Failing*Test stay out of a normal build. The
          failing-tests profile clears this exclusion so consumers can
@@ -96,6 +97,13 @@ plugin configuration inherited by the code modules.
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>${jacoco.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <!-- Used only by app-fabric8, which the aggregator's docker
+               profile adds to the reactor. -->
+          <groupId>io.fabric8</groupId>
+          <artifactId>docker-maven-plugin</artifactId>
+          <version>${docker.plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>

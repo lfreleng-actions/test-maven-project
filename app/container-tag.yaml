@@ -1,0 +1,11 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 The Linux Foundation
+#
+# Per-image tag file in the form O-RAN-SC projects use for the
+# plain-Dockerfile image built from this directory.
+
+# The Jenkins job requires a tag to build the Docker image.
+# By default this file is in the docker build directory,
+# but the location can configured in the JJB template.
+tag: 1.0.0
